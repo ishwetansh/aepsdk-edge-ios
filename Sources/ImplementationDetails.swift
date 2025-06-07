@@ -37,9 +37,9 @@ enum ImplementationDetails {
 
         var allSdkVersions: [String: String] = [:]
         allSdkVersions["Core"] = coreVersion
-        
+
         if let extensions = hubState[EdgeConstants.SharedState.Hub.EXTENSIONS] as? [String: Any] {
-            for (extensionName, extensionInfo) in extensions {
+            for (_, extensionInfo) in extensions {
                 if let extensionData = extensionInfo as? [String: Any],
                    let version = extensionData["version"] as? String,
                    let friendlyName = extensionData["friendlyName"] as? String,
