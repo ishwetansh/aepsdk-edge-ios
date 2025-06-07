@@ -124,6 +124,7 @@ class EdgeHitProcessor: HitProcessing {
         // Get location hint for request endpoint
         let locationHint = getLocationHint()
 
+        let shouldIncludeImplementationDetails = event.data?["includeImplementationDetails"] as? Bool ?? false
         if let implementationDetails = getImplementationDetails() {
             requestBuilder.xdmPayloads[EdgeConstants.JsonKeys.IMPLEMENTATION_DETAILS] = AnyCodable(implementationDetails)
         }

@@ -35,8 +35,22 @@ enum ImplementationDetails {
             wrapperName = "/\(wrapperName)"
         }
 
-        var implementationDetails = [String: String]()
-        implementationDetails[EdgeConstants.JsonKeys.ImplementationDetails.VERSION] = "\(coreVersion)+\(EdgeConstants.EXTENSION_VERSION)"
+        var allSdkVersions: [String: String] = [:]
+        allSdkVersions["Core"] = coreVersion
+        
+        if let extensions = hubState[EdgeConstants.SharedState.Hub.EXTENSIONS] as? [String: Any] {
+            for (extensionName, extensionInfo) in extensions {
+                if let extensionData = extensionInfo as? [String: Any],
+                   let version = extensionData["version"] as? String,
+                   let friendlyName = extensionData["friendlyName"] as? String,
+                   !version.isEmpty && !friendlyName.isEmpty {
+                    allSdkVersions[friendlyName] = version
+                }
+            }
+        }
+
+        var implementationDetails = [String: Any]()
+        implementationDetails[EdgeConstants.JsonKeys.ImplementationDetails.VERSION] = allSdkVersions
         implementationDetails[EdgeConstants.JsonKeys.ImplementationDetails.ENVIRONMENT] = EdgeConstants.JsonValues.ImplementationDetails.ENVIRONMENT_APP
 
         #if os(iOS)
