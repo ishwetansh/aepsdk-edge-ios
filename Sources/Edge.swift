@@ -61,6 +61,9 @@ public class Edge: NSObject, Extension {
         registerListener(type: EventType.genericIdentity,
                          source: EventSource.requestReset,
                          listener: handleIdentitiesReset)
+        registerListener(type: EventType.lifecycle,
+                         source: EventSource.responseContent,
+                         listener: handleLifecycleResponse)
     }
 
     public func onUnregistered() {
@@ -197,6 +200,29 @@ public class Edge: NSObject, Extension {
         }
 
         setLocationHint(hint, ttlSeconds: EdgeConstants.Defaults.LOCATION_HINT_TTL_SEC)
+    }
+
+    /// Handles the lifecycle response events for session tracking
+    /// - Parameter event: the lifecycle event
+    func handleLifecycleResponse(_ event: Event) {
+        guard event.name == "LifecycleStart" else { return }
+        
+        let customEventData: [String: Any] = [
+            "sessionId": UUID().uuidString,
+            "sessionStartTime": Date().timeIntervalSince1970,
+            "customMetric": "session_started",
+            "includeImplementationDetails": true
+        ]
+        
+        let customEvent = Event(
+            name: "Session Details",
+            type: EventType.edge,
+            source: EventSource.requestContent,
+            data: customEventData
+        )
+        
+        MobileCore.dispatch(event: customEvent)
+        print("session event fired!")
     }
 
     /// Determines if the event should be ignored by the Edge extension. This method should be called after

@@ -25,6 +25,7 @@ class EdgeHitProcessor: HitProcessing {
     private var getLocationHint: () -> String?
     private let entityRetryIntervalMapping = ThreadSafeDictionary<String, TimeInterval>()
     private let VALID_PATH_REGEX_PATTERN = "^\\/[/.a-zA-Z0-9-~_]+$"
+    private var hasProcessedFirstEdgeEvent = false
 
     init(networkService: EdgeNetworkService,
          networkResponseHandler: NetworkResponseHandler,
@@ -124,8 +125,10 @@ class EdgeHitProcessor: HitProcessing {
         // Get location hint for request endpoint
         let locationHint = getLocationHint()
 
-        if let implementationDetails = getImplementationDetails() {
+        // Include implementation details only on the first edge event
+        if !hasProcessedFirstEdgeEvent, let implementationDetails = getImplementationDetails() {
             requestBuilder.xdmPayloads[EdgeConstants.JsonKeys.IMPLEMENTATION_DETAILS] = AnyCodable(implementationDetails)
+            hasProcessedFirstEdgeEvent = true
         }
 
         // Check if datastream ID override is present
